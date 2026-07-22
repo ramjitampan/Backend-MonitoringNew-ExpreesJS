@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ═══════════════════════════════════════
+//  ENUMS
+// ═══════════════════════════════════════
+
+enum StatusEfisiensi {
+  Balance @map("balance")
+  Boros   @map("boros")
+  Anomali @map("anomali")
+}
+
+// ═══════════════════════════════════════
+//  SYSTEM TABLES (Laravel built-in)
+// ═══════════════════════════════════════
+
+model User {
+  id              BigInt    @id @default(autoincrement())
+  name            String
+  email           String    @unique
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  password        String
+  rememberToken   String?   @map("remember_token")
+  createdAt       DateTime? @map("created_at")
+  updatedAt       DateTime? @map("updated_at")
+
+  @@map("users")
+}
+
+model PasswordResetToken {
+  email     String    @id
+  token     String
+  createdAt DateTime? @map("created_at")
+
+  @@map("password_reset_tokens")
+}
+
+model Session {
+  id           String
+  userId       BigInt?  @map("user_id")
+  ipAddress    String?  @map("ip_address")  @db.VarChar(45)
+  userAgent    String?  @map("user_agent")  @db.Text
+  payload      String   @db.LongText
+  lastActivity Int      @map("last_activity")
+
+  @@id([id])
+  @@index([userId], map: "sessions_user_id_index")
+  @@index([lastActivity], map: "sessions_last_activity_index")
+  @@map("sessions")
+}
+
+model Cache {
+  key        String
+  value      String   @db.MediumText
+  expiration BigInt
+
+  @@id([key])
+  @@index([expiration], map: "cache_expiration_index")
+  @@map("cache")
+}
+
+model CacheLock {
+  key        String
+  owner      String
+  expiration BigInt
+
+  @@id([key])
+  @@index([expiration], map: "cache_locks_expiration_index")
+  @@map("cache_locks")
+}
+
+model Job {
+  id          BigInt  @id @default(autoincrement())
+  queue       String
+  payload     String  @db.LongText
+  attempts    Int
+  reservedAt  Int?    @map("reserved_at")
+  availableAt Int     @map("available_at")
+  createdAt   Int     @map("created_at")
+
+  @@index([queue], map: "jobs_queue_index")
+  @@map("jobs")
+}
+
+model JobBatch {
+  id           String
+  name         String
+  totalJobs    Int      @map("total_jobs")
+  pendingJobs  Int      @map("pending_jobs")
+  failedJobs   Int      @map("failed_jobs")
+  failedJobIds String   @map("failed_job_ids") @db.LongText
+  options      String?  @db.MediumText
+  cancelledAt  Int?     @map("cancelled_at")
+  createdAt    Int      @map("created_at")
+  finishedAt   Int?     @map("finished_at")
+
+  @@id([id])
+  @@map("job_batches")
+}
+
+model FailedJob {
+  id         BigInt   @id @default(autoincrement())
+  uuid       String   @unique
+  connection String
+  queue      String
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failedAt   DateTime @map("failed_at") @default(now())
+
+  @@index([connection, queue, failedAt], map: "failed_jobs_connection_queue_failed_at_index")
+  @@map("failed_jobs")
+}
+
+// ═══════════════════════════════════════
+//  BUSINESS TABLES
+// ═══════════════════════════════════════
+
+model Pegawai {
+  id        BigInt     @id @default(autoincrement())
+  nama      String
+  jabatan   String?
+  divisi    String?
+  noHp      String?    @map("no_hp")
+  createdAt DateTime?  @map("created_at")
+  updatedAt DateTime?  @map("updated_at")
+  deletedAt DateTime?  @map("deleted_at")
+
+  perjalanans Perjalanan[]
+
+  @@index([nama], map: "idx_pegawais_nama")
+  @@map("pegawais")
+}
+
+model Kendaraan {
+  id         BigInt     @id @default(autoincrement())
+  platNomor  String     @unique @map("plat_nomor")
+  merk       String
+  jenis      String     @default("R4")
+  tahun      Int        // Laravel YEAR(4) — Prisma no Year type, using Int
+  createdAt  DateTime?  @map("created_at")
+  updatedAt  DateTime?  @map("updated_at")
+  deletedAt  DateTime?  @map("deleted_at")
+
+  perjalanans Perjalanan[]
+
+  @@index([platNomor], map: "idx_kendaraans_plat_nomor")
+  @@index([merk], map: "idx_kendaraans_merk")
+  @@map("kendaraans")
+}
+
+model Perjalanan {
+  id              BigInt           @id @default(autoincrement())
+  pegawaiId       BigInt           @map("pegawai_id")
+  kendaraanId     BigInt           @map("kendaraan_id")
+  tanggal         DateTime         @db.Date
+  tujuan          String
+  uraian          String?
+  kmLama          Decimal   @map("km_lama")   @db.Decimal(10, 2)
+  kmBaru          Decimal   @map("km_baru")   @db.Decimal(10, 2)
+  jarak           Decimal   @db.Decimal(10, 2)
+  volLiter        Decimal   @map("vol_liter") @db.Decimal(10, 2)
+  hargaPerLiter   Decimal   @map("harga_per_liter") @db.Decimal(10, 2)
+  jumlahBiaya     Decimal   @map("jumlah_biaya") @db.Decimal(15, 2)
+  noBon           String?          @map("no_bon")
+  fotoBon         String?          @map("foto_bon")
+  efisiensi       Decimal   @db.Decimal(10, 2)
+  statusEfisiensi StatusEfisiensi  @map("status_efisiensi")
+  statusReason    String?          @map("status_reason")
+  fraudScore      Int              @map("fraud_score") @default(0)
+  fraudFlags      Json?            @map("fraud_flags")
+  createdAt       DateTime?        @map("created_at")
+  updatedAt       DateTime?        @map("updated_at")
+  deletedAt       DateTime?        @map("deleted_at")
+
+  pegawai   Pegawai   @relation(fields: [pegawaiId], references: [id], onDelete: Cascade)
+  kendaraan Kendaraan @relation(fields: [kendaraanId], references: [id], onDelete: Cascade)
+
+  @@index([kendaraanId, tanggal], map: "perjalanans_kendaraan_id_tanggal_index")
+  @@index([pegawaiId], map: "idx_perjalanans_pegawai_id")
+  @@index([tanggal], map: "idx_perjalanans_tanggal")
+  @@index([statusEfisiensi], map: "idx_perjalanans_status_efisiensi")
+  @@index([noBon], map: "idx_perjalanans_no_bon")
+  @@index([kmBaru], map: "idx_perjalanans_km_baru")
+  @@index([kmLama], map: "idx_perjalanans_km_lama")
+  @@map("perjalanans")
+}
