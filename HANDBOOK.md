@@ -625,8 +625,8 @@ module.exports = { getAll, getById }
 
 | Peran | Nama | Kontak |
 |---|---|---|
-| Pengembang Magang | [Nama Pengembang] | [Email/HP] |
-| Pembimbing Lapangan | [Nama Pembimbing] | [Email/HP] |
+| Pengembang Magang | Ramzy Junfaris Hamonangan | Junfarisramji@gmail.com or Ramjijunfaris12@gmail.com |
+| Pembimbing Lapangan | Adelia Jojorita Sibuea | Bersifat Rahasia |
 
 ---
 
