@@ -6,6 +6,8 @@ import rateLimit from "express-rate-limit";
 import { env } from "./config/env.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 import { logger } from "./middlewares/logger.js";
+import { authenticate } from "./middlewares/auth.js";
+import authRoutes from "./routes/auth.js";
 import pegawaiRoutes from "./routes/pegawai.js";
 import kendaraanRoutes from "./routes/kendaraan.js";
 import perjalananRoutes from "./routes/perjalanan.js";
@@ -15,7 +17,7 @@ const app = express();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 10000,
   message: { success: false, message: "Terlalu banyak permintaan, coba lagi nanti" },
 });
 
@@ -26,9 +28,10 @@ app.use(limiter);
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 
-app.use("/api/pegawai", pegawaiRoutes);
-app.use("/api/kendaraan", kendaraanRoutes);
-app.use("/api/perjalanan", perjalananRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/pegawai", authenticate, pegawaiRoutes);
+app.use("/api/kendaraan", authenticate, kendaraanRoutes);
+app.use("/api/perjalanan", authenticate, perjalananRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 app.get("/", (req, res) => {
