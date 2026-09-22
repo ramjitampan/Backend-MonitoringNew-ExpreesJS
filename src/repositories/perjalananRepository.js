@@ -35,12 +35,7 @@ export const perjalananRepository = {
     const where = {
       kendaraanId,
       deletedAt: null,
-      OR: [
-        { tanggal: { lt: new Date(tanggal) } },
-        ...(excludeId
-          ? [{ tanggal: new Date(tanggal), id: { lt: excludeId } }]
-          : [{ tanggal: new Date(tanggal) }]),
-      ],
+      OR: [{ tanggal: { lt: new Date(tanggal) } }, ...(excludeId ? [{ tanggal: new Date(tanggal), id: { lt: excludeId } }] : [{ tanggal: new Date(tanggal) }])],
     };
 
     return prisma.perjalanan.findMany({

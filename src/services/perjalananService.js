@@ -66,6 +66,9 @@ export const perjalananService = {
     status_validasi,
     tanggal_dari,
     tanggal_sampai,
+    bulan,
+    tahun,
+    search,
   }) {
     const skip = (page - 1) * perPage;
     const take = perPage;
@@ -79,6 +82,22 @@ export const perjalananService = {
     if (tanggal_sampai) where.tanggal = { ...where.tanggal, lte: new Date(tanggal_sampai) };
     if (status_validasi) {
       where.fraudFlags = { path: ["status_anomali"], equals: status_validasi };
+    }
+
+    if (bulan && tahun) {
+      const startDate = new Date(`${tahun}-${String(bulan).padStart(2, "0")}-01T00:00:00.000Z`);
+      const endDate = new Date(tahun, bulan, 1);
+      where.tanggal = { ...where.tanggal, gte: startDate, lt: endDate };
+    }
+
+    if (search) {
+      where.OR = [
+        { tujuan: { contains: search } },
+        { noBon: { contains: search } },
+        { pegawai: { nama: { contains: search } } },
+        { kendaraan: { jenis: { contains: search } } },
+        { kendaraan: { platNomor: { contains: search } } },
+      ];
     }
 
     const [data, total] = await Promise.all([
