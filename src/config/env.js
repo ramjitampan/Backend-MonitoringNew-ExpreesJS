@@ -9,6 +9,9 @@ export const env = {
 
   CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:5173",
 
+  JWT_SECRET: process.env.JWT_SECRET || "bensin-monitoring-dev-secret",
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "1d",
+
   PERJALANAN_TIF_PREFIX: process.env.PERJALANAN_TIF_PREFIX || "TIF-2954",
   PERJALANAN_MANAGER_NAME: process.env.PERJALANAN_MANAGER_NAME || "Nama Manager",
   PERJALANAN_OFFICER_NAME: process.env.PERJALANAN_OFFICER_NAME || "Nama Officer",
