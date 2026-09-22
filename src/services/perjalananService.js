@@ -10,6 +10,8 @@ function formatPerjalanan(p) {
   const fotoBon = p.fotoBon || null;
   const fotoBonUrl = null;
 
+  const statusValidasi = flags?.status_anomali || "Normal";
+
   return {
     id: p.id,
     tanggal: p.tanggal ? new Date(p.tanggal).toISOString().split("T")[0] : null,
@@ -44,7 +46,8 @@ function formatPerjalanan(p) {
       fraud_score: p.fraudScore,
       fraud_flags: flags,
     },
-    status_validasi: flags?.status_anomali || "Normal",
+    status: statusValidasi,
+    status_validasi: statusValidasi,
     nilai_sewajarnya: parseFloat(flags?.hasil_sewajarnya || 0),
     deviasi_km: parseFloat(flags?.deviasi || 0),
     keterangan_validasi: flags?.keterangan_anomali || "Tidak ada alasan.",
