@@ -1,3 +1,15 @@
 node_modules/
 .env
 generated/
+
+# Temporary/test scripts with credentials
+check-railway.js
+fix-password.mjs
+import-dummy.js
+test-railway.mjs
+
+# Security test scripts (not for production)
+prisma/sqli-attack.js
+prisma/sqli-destroy.js
+prisma/xss-attack.js
+prisma/api-injection.js
