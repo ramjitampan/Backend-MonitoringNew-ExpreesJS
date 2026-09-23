@@ -1,5 +1,7 @@
 import "dotenv/config";
 
+import { connectDatabase } from "./config/prisma.js";
+
 // BigInt serialization fix untuk JSON response
 if (!BigInt.prototype.toJSON) {
   BigInt.prototype.toJSON = function () {
@@ -56,6 +58,8 @@ app.get("/", (req, res) => {
 });
 
 app.use(errorHandler);
+
+await connectDatabase();
 
 app.listen(env.PORT, () => {
   console.log(`Server running on port ${env.PORT}`);
