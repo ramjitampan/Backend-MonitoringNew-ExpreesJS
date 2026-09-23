@@ -59,8 +59,16 @@ app.get("/", (req, res) => {
 
 app.use(errorHandler);
 
-await connectDatabase();
+async function startServer() {
+  try {
+    await connectDatabase();
+    app.listen(env.PORT, () => {
+      console.log(`Server running on port ${env.PORT}`);
+    });
+  } catch (error) {
+    console.error("Gagal memulai server:", error);
+    process.exit(1);
+  }
+}
 
-app.listen(env.PORT, () => {
-  console.log(`Server running on port ${env.PORT}`);
-});
+startServer();
