@@ -1,4 +1,12 @@
 import "dotenv/config";
+
+// BigInt serialization fix untuk JSON response
+if (!BigInt.prototype.toJSON) {
+  BigInt.prototype.toJSON = function () {
+    return this.toString();
+  };
+}
+
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
