@@ -6,7 +6,10 @@ import { timelineService } from "./timelineService.js";
 import { fraudService } from "./fraudService.js";
 
 function formatPerjalanan(p) {
-  const flags = p.fraudFlags || {};
+  let flags = {};
+  if (p.fraudFlags) {
+    try { flags = JSON.parse(p.fraudFlags); } catch { flags = {}; }
+  }
   const fotoBon = p.fotoBon || null;
   const fotoBonUrl = null;
 
@@ -221,7 +224,7 @@ export const perjalananService = {
       statusEfisiensi: status.charAt(0).toUpperCase() + status.slice(1),
       statusReason,
       fraudScore,
-      fraudFlags,
+      fraudFlags: JSON.stringify(fraudFlags),
     };
   },
 
@@ -284,7 +287,10 @@ export const perjalananService = {
     });
 
     return data.map((p) => {
-      const flags = p.fraudFlags || {};
+      let flags = {};
+      if (p.fraudFlags) {
+        try { flags = JSON.parse(p.fraudFlags); } catch { flags = {}; }
+      }
       return {
         tanggal: p.tanggal ? new Date(p.tanggal).toLocaleDateString("id-ID") : "",
         uraian: p.uraian || p.tujuan,
@@ -302,7 +308,10 @@ export const perjalananService = {
   },
 
   buildFlashMessage(payload) {
-    const flags = payload.fraudFlags || {};
+    let flags = {};
+    if (payload.fraudFlags) {
+      try { flags = JSON.parse(payload.fraudFlags); } catch { flags = {}; }
+    }
     const statusAnomali = flags.status_anomali || "Normal";
 
     if (statusAnomali === "Anomali") {
